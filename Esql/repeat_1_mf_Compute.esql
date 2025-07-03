@@ -1,0 +1,41 @@
+
+
+CREATE COMPUTE MODULE repeat_1_mf_Compute
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+	      CALL CopyMessageHeaders();
+		-- CALL CopyEntireMessage();
+		DECLARE inRef REFERENCE TO InputRoot.XMLNSC.students;
+		 DECLARE studentCount INTEGER CARDINALITY (inRef.student[]);
+		 --CARDINALITY(inRef.student[]) counts the number of <student> elements inside <students>.
+--Example: If there are 3 <student> nodes, studentCount = 3
+		CREATE FIELD OutputRoot.JSON.Data.students_out;
+		DECLARE outRef REFERENCE TO OutputRoot.JSON.Data.students_out;
+		
+		DECLARE i INTEGER 1;
+		REPEAT
+			  
+            SET outRef.student_out[i].name_out = inRef.student[i].name; 
+            SET outRef.student_out[i].id_out = inRef.student[i].id;
+            SET outRef.student_out[i].course_out = inRef.student[i].course;
+                SET i=i+1;
+			UNTIL i = studentCount+1
+		END REPEAT;
+		
+		RETURN TRUE;
+	END;
+
+	CREATE PROCEDURE CopyMessageHeaders() BEGIN
+		DECLARE I INTEGER 1;
+		DECLARE J INTEGER;
+		SET J = CARDINALITY(InputRoot.*[]);
+		WHILE I < J DO
+			SET OutputRoot.*[I] = InputRoot.*[I];
+			SET I = I + 1;
+		END WHILE;
+	END;
+
+	CREATE PROCEDURE CopyEntireMessage() BEGIN
+		SET OutputRoot = InputRoot;
+	END;
+END MODULE;

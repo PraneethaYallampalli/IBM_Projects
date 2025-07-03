@@ -1,0 +1,39 @@
+
+
+CREATE COMPUTE MODULE for_loop_mf_Compute
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		 CALL CopyMessageHeaders();
+		-- CALL CopyEntireMessage();
+		 DECLARE inRef REFERENCE TO InputRoot.XMLNSC.students;
+		 
+		CREATE FIELD OutputRoot.JSON.Data.students_out;
+		DECLARE outRef REFERENCE TO OutputRoot.JSON.Data.students_out;
+		
+		DECLARE i INTEGER 1;
+		    FOR studentRef AS InputRoot.XMLNSC.students.student[]
+		    	DO
+			  
+            SET outRef.student_out[i].name_out = studentRef.name; 
+            SET outRef.student_out[i].id_out = studentRef.id;
+            SET outRef.student_out[i].course_out = studentRef.course;
+                SET i=i+1;
+			
+		END FOR;
+		RETURN TRUE;
+	END;
+
+	CREATE PROCEDURE CopyMessageHeaders() BEGIN
+		DECLARE I INTEGER 1;
+		DECLARE J INTEGER;
+		SET J = CARDINALITY(InputRoot.*[]);
+		WHILE I < J DO
+			SET OutputRoot.*[I] = InputRoot.*[I];
+			SET I = I + 1;
+		END WHILE;
+	END;
+
+	CREATE PROCEDURE CopyEntireMessage() BEGIN
+		SET OutputRoot = InputRoot;
+	END;
+END MODULE;

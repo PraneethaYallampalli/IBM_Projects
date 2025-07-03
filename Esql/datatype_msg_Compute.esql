@@ -1,0 +1,69 @@
+CREATE COMPUTE MODULE datatype_msg_Compute
+    CREATE FUNCTION Main() RETURNS BOOLEAN
+    BEGIN
+        CALL CopyMessageHeaders();
+        -- CALL CopyEntireMessage();
+        
+        DECLARE boolvar BOOLEAN;
+        SET boolvar = TRUE;
+        
+        DECLARE timevar TIME; 
+        SET timevar = CURRENT_TIME;
+        
+        DECLARE datevar DATE;
+        SET datevar = CURRENT_DATE;
+        
+        DECLARE timestampvar TIMESTAMP;
+        SET timestampvar = CURRENT_TIMESTAMP;
+        
+        DECLARE num INTEGER;
+        SET num = 100;
+        
+        DECLARE decvar DECIMAL;
+        SET decvar = 1234.56;
+        
+        DECLARE floatvar FLOAT;
+        SET floatvar = 3.141592;
+        
+        DECLARE bitvar BIT;
+        SET bitvar = B'1';
+        
+        DECLARE blobvar BLOB;
+        SET blobvar = X'48656C6C6F';
+        
+        DECLARE inRef REFERENCE TO InputRoot.XMLNSC.menu;
+        
+        DECLARE rowvar ROW;
+        SET rowvar.menu = inRef;
+        
+        -- Assign values to JSON output
+        SET OutputRoot.JSON.Data.menu = inRef;
+        SET OutputRoot.JSON.Data.boolVar = boolvar;
+        SET OutputRoot.JSON.Data.timeVar = timevar;
+        SET OutputRoot.JSON.Data.dateVar = datevar;
+        SET OutputRoot.JSON.Data.timestampVar = timestampvar;
+        SET OutputRoot.JSON.Data.numVar = num;
+        SET OutputRoot.JSON.Data.decVar = decvar;
+        SET OutputRoot.JSON.Data.floatVar = floatvar;
+        SET OutputRoot.JSON.Data.bitVar = bitvar;
+        SET OutputRoot.JSON.Data.blobVar = blobvar;
+        SET OutputRoot.JSON.Data.rowVar = rowvar;
+
+        RETURN TRUE;
+    END;
+
+    CREATE PROCEDURE CopyMessageHeaders() BEGIN
+        DECLARE I INTEGER 1;
+        DECLARE J INTEGER;
+        SET J = CARDINALITY(InputRoot.*[]);
+        
+        WHILE I <= J DO
+            SET OutputRoot.*[I] = InputRoot.*[I];
+            SET I = I + 1;
+        END WHILE;
+    END;
+
+    CREATE PROCEDURE CopyEntireMessage() BEGIN
+        SET OutputRoot = InputRoot;
+    END;
+END MODULE;
